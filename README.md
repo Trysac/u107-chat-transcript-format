@@ -1,55 +1,39 @@
-# chat-transcript-format
+# @trysac/chat-transcript-format
 
-[![npm version](https://img.shields.io/npm/v/@trysac/chat-transcript-format.svg)](https://www.npmjs.com/package/@trysac/chat-transcript-format)
-[![license: MIT](https://img.shields.io/npm/l/@trysac/chat-transcript-format.svg)](LICENSE)
-[![CI](https://github.com/Trysac/u107-chat-transcript-format/actions/workflows/ci.yml/badge.svg)](https://github.com/Trysac/u107-chat-transcript-format/actions/workflows/ci.yml)
+![CI](https://github.com/trysac/chat-transcript-format/workflows/ci/badge.svg)
 
-Convert chat transcripts between OpenAI chat, Anthropic Messages and Gemini contents formats with text and base64 images, explicit errors for anything lossy
+Moving a conversation between providers means rewriting roles, system prompts and content parts by hand, and silent mistakes such as dropped images or merged turns change model behaviour. This library provides a neutral, dependency-free, and strict converter between OpenAI, Anthropic, and Gemini chat transcript formats.
 
-## Problem
+## Installation
 
-Describe in two or three sentences the concrete problem this utility solves, who hits it, and why existing
-packages do not solve it well. Keep it factual; link to an issue or decision record when there is one.
-
-## Install
-
-```sh
+```bash
 npm install @trysac/chat-transcript-format
 ```
 
-Requires Node.js 20 or newer. The package ships ES modules with TypeScript declarations.
-
 ## Usage
 
-```ts
-import { greet } from "@trysac/chat-transcript-format";
+```typescript
+import { convert } from "@trysac/chat-transcript-format";
 
-// Build a greeting; surrounding whitespace is ignored.
-const message = greet("  Ada ");
-console.log(message); // "Hello, Ada!"
-
+const input = [{ role: "user", content: "Hi" }];
 try {
-  greet("   ");
-} catch (error) {
-  console.error((error as Error).message); // "name must not be empty"
+  const gemini = convert(input, "openai", "gemini");
+  console.log(gemini);
+} catch (err) {
+  console.error("Conversion failed:", err);
 }
 ```
 
-## API
+## Public API
 
-| Export | Signature | Description |
-|---|---|---|
-| `greet` | `(name: string) => string` | Placeholder API; replace it with the real one. |
+- `parse(format, input, opts?)`: Parses provider-specific input into a normalized `Transcript` object.
+- `render(format, transcript)`: Renders a `Transcript` into a provider-specific format.
+- `convert(input, from, to, opts?)`: Directly converts input from one format to another.
+- `TranscriptError`: Thrown for `INVALID_INPUT`, `UNSUPPORTED_ROLE`, `UNSUPPORTED_PART`, `TOO_MANY_MESSAGES`, or `TOO_LARGE`.
+- `Limits`: Options `{ maxMessages: number, maxChars: number }` to enforce bounds.
 
-## Development
+## Why not provider SDKs?
 
-```sh
-npm install
-npm run check   # lint, format, types, tests with coverage, docs, secrets
-```
+Provider-specific SDKs are tied to their own ecosystems. This utility is provider-agnostic, zero-dependency, and strictly validates input at every step to prevent silent data loss or format mismatches.
 
-See [AGENTS.md](AGENTS.md) for the full command list and [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow.
-
-## License
-
-[MIT](LICENSE) © 2026 Miguel Gomez
+See [docs/SECURITY.md](docs/SECURITY.md) for safety details.

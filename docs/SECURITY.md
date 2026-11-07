@@ -1,28 +1,14 @@
-# Security practices
+# Security
 
-How this repository keeps the package and its users safe. The disclosure policy is in
-[../SECURITY.md](../SECURITY.md).
+## Threat Model
 
-## Secrets
+### Defended
 
-- No secrets, tokens or credentials in the repository, commit history, logs or prompts.
-- `gitleaks` runs as the last step of `npm run check` and as a dedicated CI job. Its configuration is
-  `.gitleaks.toml`.
-- Publishing credentials live only in the CI secret store or the maintainer's local npm configuration.
+- **Remote Code & Data Exfiltration**: The library contains zero network I/O and zero dependencies. Remote URLs are explicitly rejected; only local `data:` base64 URI schemes are processed.
+- **Denial of Service (DoS)**: The library enforces strict default limits of 10,000 messages and 1,000,000 UTF-16 code units. Inputs exceeding these thresholds trigger a `TranscriptError` immediately.
+- **Sensitive Information Leakage**: Exception messages truncate the problematic input to under 200 characters, preventing full prompts or secrets from appearing in error logs.
 
-## Dependencies
+### Not Defended
 
-- Runtime dependencies are avoided; development dependencies are limited to the toolchain listed in
-  [STACK.md](STACK.md).
-- Dependabot opens weekly updates for npm packages and GitHub Actions.
-- Commit the generated `package-lock.json` so installs are reproducible.
-
-## Code
-
-- No `eval`, dynamic `Function` construction or shelling out from library code.
-- Inputs from callers are validated and rejected with explicit errors.
-
-## Publishing
-
-- Packages are published from a clean checkout after `npm run check` passes.
-- Only `dist/` is included in the published tarball.
+- **Input Injection**: The library treats provided string content as opaque data. Users are responsible for sanitizing content before passing it to downstream LLM APIs.
+- **Resource Exhaustion (Memory)**: While message counts are limited, the library does not enforce hard memory limits beyond what the Node.js runtime imposes on the heap.

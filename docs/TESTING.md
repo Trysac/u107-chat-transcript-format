@@ -5,24 +5,14 @@
 - [Vitest](https://vitest.dev/) runs the suites in `test/`.
 - Coverage is collected with V8 (`@vitest/coverage-v8`) over `src/`.
 
-## Commands
+## Tests
 
-```sh
-npm test            # vitest run --coverage
-npx vitest          # watch mode while developing
-npm run check       # every gate, including tests
-```
-
-## Rules
-
-- Coverage must stay at or above 80 % for lines, branches, functions and statements (`vitest.config.ts`).
-  Lowering the thresholds is not allowed.
-- Test through the public entry point (`src/index.ts`) and assert observable behavior: return values,
-  thrown errors and their messages.
-- Each bug fix adds a test that fails without the fix.
-- Tests are deterministic: no network, no real clock or randomness without injection, no shared state between
-  tests. Temporary files go to the OS temp directory and are removed by the test.
-
-## Reports
-
-Coverage reports are written to `coverage/` (text summary and `lcov`). The folder is ignored by git.
+- `test/cli.test.ts`: Validates CLI execution patterns. Covers usage errors (missing arguments, unexpected arguments), IO failures (non-existent file, invalid JSON), and verifies that valid conversions return code 0 and proper JSON output.
+- `test/index.test.ts`: Acceptance tests for the library core. Covers:
+  - Deep equality of conversions (OpenAI to Gemini).
+  - Round-trip fidelity (Anthropic -> OpenAI -> Anthropic).
+  - Correct handling of image parts (data URLs).
+  - Error code validation (`UNSUPPORTED_PART`, `UNSUPPORTED_ROLE`, `INVALID_INPUT`, `TOO_MANY_MESSAGES`, `TOO_LARGE`).
+  - Edge case handling: empty messages, assistant-first transcripts, system-only transcripts, unicode support, and mixed text/image parts order.
+  - Immutability of the input transcript.
+  - Custom limit enforcement.
