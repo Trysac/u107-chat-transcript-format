@@ -6,9 +6,15 @@ Moving a conversation between providers means rewriting roles, system prompts an
 
 ## Installation
 
-```bash
-npm install @trysac/chat-transcript-format
+Not published to npm yet. Build it from a clone, then install it from the local path:
+
+```sh
+git clone https://github.com/Trysac/u107-chat-transcript-format.git
+cd u107-chat-transcript-format && npm ci && npm run build
+cd ../your-project && npm install ../u107-chat-transcript-format
 ```
+
+Imports keep the package name: `import { ... } from "@trysac/chat-transcript-format"`.
 
 ## Usage
 
